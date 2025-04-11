@@ -1,0 +1,13 @@
+{
+    "provider": {
+      "cluster": "devnet",
+      "wallet": "~/.config/solana/id.json"
+    },
+    "programs": {
+      "localnet": {
+        "organizationRegistry": "your_organization_registry_program_id_here",
+        "organization": "your_organization_program_id_here",
+        "event": "your_event_program_id_here"
+      }
+    }
+  }
