@@ -66,7 +66,21 @@ export const eventService = {
      * Get event by ID
      */
     getEventById: (id: string): Event | undefined => {
-        return mockEvents.find(event => event.id === id);
+        // Search in all event collections
+        // First check regular events
+        let event = mockEvents.find(event => event.id === id);
+        
+        // If not found, check ongoing events
+        if (!event) {
+            event = mockOngoingEvents.find(event => event.id === id);
+        }
+        
+        // If still not found, check past events
+        if (!event) {
+            event = allPastEvents.find(event => event.id === id);
+        }
+        
+        return event;
     },
 
     /**

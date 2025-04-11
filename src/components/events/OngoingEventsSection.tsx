@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Event } from '@/types/event';
 import { formatDateRange } from '@/utils/date';
 import InfiniteScroll from '@/components/common/InfiniteScroll';
@@ -11,6 +12,7 @@ interface OngoingEventsSectionProps {
 }
 
 const OngoingEventsSection: React.FC<OngoingEventsSectionProps> = ({ events }) => {
+  const router = useRouter();
   const [displayedEvents, setDisplayedEvents] = useState<Event[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,8 +34,10 @@ const OngoingEventsSection: React.FC<OngoingEventsSectionProps> = ({ events }) =
         console.warn('Found duplicate event IDs in ongoingEvents');
       }
     }
+    
+    // Debug: Log all event IDs to check for any issues
+    console.log('All ongoing event IDs:', events.map(e => e.id));
   }, [events]);
-
 
   const loadMoreEvents = (page: number) => {
     if (events.length === 0) return;
@@ -46,6 +50,11 @@ const OngoingEventsSection: React.FC<OngoingEventsSectionProps> = ({ events }) =
         const startIndex = (page - 1) * ITEMS_PER_PAGE;
         const endIndex = startIndex + ITEMS_PER_PAGE;
         const newEvents = events.slice(startIndex, endIndex);
+        
+        // Debug: Log the newly loaded events
+        console.log(`Loading events for page ${page}:`, 
+          newEvents.map(e => ({ id: e.id, name: e.name }))
+        );
         
         if (page === 1) {
           setDisplayedEvents(newEvents);
@@ -68,6 +77,18 @@ const OngoingEventsSection: React.FC<OngoingEventsSectionProps> = ({ events }) =
         setIsLoading(false);
       }
     }, 500);
+  };
+
+  // Debug: Function to handle manual navigation
+  const handleEventClick = (event: Event) => {
+    const url = `/events/${event.id}`;
+    console.log('Navigating to:', url);
+    console.log('Event details:', {
+      id: event.id,
+      name: event.name,
+      validId: typeof event.id === 'string' && event.id.length > 0
+    });
+    router.push(url);
   };
 
   if (events.length === 0) {
@@ -97,7 +118,15 @@ const OngoingEventsSection: React.FC<OngoingEventsSectionProps> = ({ events }) =
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {displayedEvents.map((event) => (
-            <Link href={`/events/${event.id}`} key={event.id}>
+            // Option 1: Using Link component (debug with onClick)
+            <Link 
+              href={`/events/${event.id}`} 
+              key={event.id}
+              onClick={(e) => {
+                // Log but don't prevent default navigation
+                console.log('Link clicked for event:', event.id);
+              }}
+            >
               <div className="bg-white border border-l-4 border-l-green-500 rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 h-full flex flex-col">
                 <div className="flex items-start mb-3">
                   <div className="w-16 h-16 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
@@ -124,9 +153,17 @@ const OngoingEventsSection: React.FC<OngoingEventsSectionProps> = ({ events }) =
                   <div className="text-xs text-gray-500">
                     <span className="font-medium">{event.venue.split(',')[0]}</span>
                   </div>
-                  <div className="text-purple-600 text-sm font-medium hover:underline">
-                    Join Now →
-                  </div>
+                  
+                  {/* Option 2: Add a button with manual navigation */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault(); // Stop the Link navigation
+                      handleEventClick(event);
+                    }}
+                    className="text-purple-600 text-sm font-medium hover:underline"
+                  >
+                    View Details →
+                  </button>
                 </div>
               </div>
             </Link>
