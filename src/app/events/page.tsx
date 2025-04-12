@@ -1,6 +1,5 @@
 'use client';
 
-import React, { useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import EventCarousel from '@/components/events/EventCarousel';
 import OngoingEventsSection from '@/components/events/OngoingEventsSection';
