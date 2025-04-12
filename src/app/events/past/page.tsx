@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { eventService } from '@/services/eventService';
 import EventListItem from '@/components/events/EventListItem';
@@ -11,15 +11,10 @@ export default function PastEventsPage() {
   const [pastEvents, setPastEvents] = useState<Event[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  // Remove unused state variables
   const ITEMS_PER_PAGE = 5;
 
-  useEffect(() => {
-    // Load initial set of past events
-    loadEvents(1);
-  }, []);
-
-  const loadEvents = (pageNum: number) => {
+  const loadEvents = useCallback((pageNum: number) => {
     // Don't load more if we're already loading or if we know there are no more items
     if (isLoading || (pageNum > 1 && !hasMore)) return;
     
@@ -53,7 +48,12 @@ export default function PastEventsPage() {
         setIsLoading(false);
       }
     }, 800); // Simulate network delay
-  };
+  }, [hasMore, isLoading]);
+
+  useEffect(() => {
+    // Load initial set of past events
+    loadEvents(1);
+  }, [loadEvents]);
   
   return (
     <div className="container mx-auto px-4 py-8">

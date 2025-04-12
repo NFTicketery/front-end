@@ -24,6 +24,8 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
     // Only set up the observer if we have more items to load
     if (!hasMore || isLoading) return;
 
+    const currentLoaderRef = loaderRef.current; // Store ref in variable to use in cleanup
+
     const observer = new IntersectionObserver(
       (entries) => {
         const target = entries[0];
@@ -41,13 +43,13 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
       }
     );
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
+    if (currentLoaderRef) {
+      observer.observe(currentLoaderRef);
     }
 
     return () => {
-      if (loaderRef.current && observer) {
-        observer.unobserve(loaderRef.current);
+      if (currentLoaderRef) {
+        observer.unobserve(currentLoaderRef);
       }
     };
   }, [hasMore, isLoading, loadMore, page]);

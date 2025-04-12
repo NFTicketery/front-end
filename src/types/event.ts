@@ -1,5 +1,3 @@
-import { PublicKey } from '@solana/web3.js';
-
 export type EventStatus = 'active' | 'cancelled' | 'completed';
 
 export interface TicketType {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Event } from '@/types/event';
@@ -18,28 +18,7 @@ const OngoingEventsSection: React.FC<OngoingEventsSectionProps> = ({ events }) =
   const [isLoading, setIsLoading] = useState(false);
   const ITEMS_PER_PAGE = 3;
 
-  useEffect(() => {
-    // Load initial set of events
-    loadMoreEvents(1);
-    
-    // Deduplicate events by ID if there are any duplicates
-    if (events.length > 0) {
-      const uniqueEventsMap = new Map<string, Event>();
-      events.forEach(event => {
-        uniqueEventsMap.set(event.id, event);
-      });
-      
-      // If we found duplicates, update the parent that there might be duplicate IDs
-      if (uniqueEventsMap.size !== events.length) {
-        console.warn('Found duplicate event IDs in ongoingEvents');
-      }
-    }
-    
-    // Debug: Log all event IDs to check for any issues
-    console.log('All ongoing event IDs:', events.map(e => e.id));
-  }, [events]);
-
-  const loadMoreEvents = (page: number) => {
+  const loadMoreEvents = useCallback((page: number) => {
     if (events.length === 0) return;
     
     setIsLoading(true);
@@ -77,7 +56,28 @@ const OngoingEventsSection: React.FC<OngoingEventsSectionProps> = ({ events }) =
         setIsLoading(false);
       }
     }, 500);
-  };
+  }, [events]);
+
+  useEffect(() => {
+    // Load initial set of events
+    loadMoreEvents(1);
+    
+    // Deduplicate events by ID if there are any duplicates
+    if (events.length > 0) {
+      const uniqueEventsMap = new Map<string, Event>();
+      events.forEach(event => {
+        uniqueEventsMap.set(event.id, event);
+      });
+      
+      // If we found duplicates, update the parent that there might be duplicate IDs
+      if (uniqueEventsMap.size !== events.length) {
+        console.warn('Found duplicate event IDs in ongoingEvents');
+      }
+    }
+    
+    // Debug: Log all event IDs to check for any issues
+    console.log('All ongoing event IDs:', events.map(e => e.id));
+  }, [events, loadMoreEvents]);
 
   // Debug: Function to handle manual navigation
   const handleEventClick = (event: Event) => {
@@ -122,7 +122,7 @@ const OngoingEventsSection: React.FC<OngoingEventsSectionProps> = ({ events }) =
             <Link 
               href={`/events/${event.id}`} 
               key={event.id}
-              onClick={(e) => {
+              onClick={() => {
                 // Log but don't prevent default navigation
                 console.log('Link clicked for event:', event.id);
               }}

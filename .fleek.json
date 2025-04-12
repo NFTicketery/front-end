@@ -1,7 +1,0 @@
-{
-    "build": {
-      "image": "node:20-alpine",
-      "command": "yarn install && yarn build",
-      "publicDir": ".next"
-    }
-  }

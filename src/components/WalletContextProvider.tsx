@@ -31,7 +31,7 @@ const WalletContextProvider: FC<WalletContextProviderProps> = ({ children }) => 
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
     ],
-    [network]
+    [] // Remove network from dependencies
   );
 
   useEffect(() => {
